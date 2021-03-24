@@ -1,0 +1,45 @@
+/*:root {
+
+}*/
+
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 25% 75%;
+    grid-template-rows: 15%;
+    height: 70vh;
+    width: 60vw;
+    background-color: #888;
+}
+
+.header {
+    grid-column: 1/3;
+    grid-row: 1/2;
+    background-color: #f00;
+}
+
+.sidebar {
+    grid-column: 1/2;
+    grid-row: 2/3;
+    background-color: #0f0;
+}
+
+.main {
+    grid-column: 2/3;
+    grid-row: 2/3;
+    background-color: #00f;
+}
