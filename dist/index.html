@@ -6,13 +6,73 @@
         <link rel="shortcut icon" href="./images/favicon.ico">
         <title>To-Do App</title>
         <link rel="stylesheet" href="./style.css">
+        <script src="https://kit.fontawesome.com/fee433bc58.js" crossorigin="anonymous"></script>
         <script src="main.js" defer></script>
     </head>
     <body>
+        <div class="modal" id="modal_add-project">
+            <div class="modal_content">
+                <div class="modal_title">
+                    <i class="fas fa-list"></i>
+                    <span>Add Project</span>
+                </div>
+                <form id="form-project">
+                    <input type="text">
+                    <input type="submit">
+                </form>
+                <i class="fas fa-times" id="modal_add-project-close"></i>
+            </div>
+        </div>
+
+        <div class="modal" id="modal_add-task">
+            <div class="modal_content">
+                <div class="modal_title">
+                    <i class="fas fa-list"></i>
+                    <span>Add Task</span>
+                </div>
+                <form id="form-task">
+                    <input type="text">
+                    <input type="text">
+                    <input type="date">
+                    <select>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                    <input type="submit">
+                </form>
+                <i class="fas fa-times" id="modal_add-task-close"></i>
+            </div>
+        </div>
+
         <div class="content">
-            <header class="header"></header>
-            <div class="sidebar"></div>
-            <div class="main"></div>
+            <header class="header">
+                <i class="fas fa-list"></i>
+                <h1>TODO</h1>
+            </header>
+
+            <div class="sidebar">
+                <div id="sidebar_title">
+                    <span>Projects</span>
+                    <i class="fas fa-chevron-down" id="sidebar_chevron"></i>
+                </div>
+                <ul id="sidebar_project-list"></ul>
+                <div id="sidebar_add-project">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Project</span>
+                </div>
+            </div>
+
+            <div class="main">
+                <div id="main_title-wrapper">
+                    <span id="main_title"></span>
+                    <div id="main_add-task">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Task</span>
+                    </div>
+                </div>
+                <ul id="main_task-list"></ul>
+            </div>
         </div>
     </body>
 </html>

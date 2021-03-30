@@ -15,6 +15,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: #ccc;
 }
 
 .content {
@@ -23,23 +24,113 @@ body {
     grid-template-rows: 15%;
     height: 70vh;
     width: 60vw;
-    background-color: #888;
 }
 
+
+/********** HEADER **********/
+
+
 .header {
+    display: flex;
+    align-items: center;
     grid-column: 1/3;
     grid-row: 1/2;
     background-color: #f00;
 }
 
+
+/********** SIDEBAR **********/
+
+
 .sidebar {
+    display: flex;
+    flex-direction: column;
     grid-column: 1/2;
     grid-row: 2/3;
     background-color: #0f0;
 }
 
+#sidebar_project-list {
+    list-style-type: none;
+}
+
+#sidebar_add-project {
+    align-self: flex-end;
+    margin-top: auto;
+}
+
+#sidebar_add-project:hover {
+    cursor: pointer;
+}
+
+
+/********** MAIN **********/
+
+
 .main {
     grid-column: 2/3;
     grid-row: 2/3;
     background-color: #00f;
+}
+
+#main_title-wrapper {
+    display: flex;
+    position: relative;
+    justify-content: flex-end;
+}
+
+#main_title {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+#main_add-task:hover {
+    cursor: pointer;
+}
+
+.description {
+    display: none;
+}
+
+
+/********** MODALS **********/
+
+
+.modal {
+    display: none;
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal_content {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 40vh;
+    width: 20vw;
+    background-color: #fff;
+}
+
+
+/********** MISC **********/
+
+
+.show {
+    display: block !important;
+}
+
+.open {
+    transform: scaleY(-1) !important;
+}
+
+.fa-times:hover,
+.fa-chevron-down,
+.fa-trash-alt,
+.sidebar_project-list-name {
+    cursor: pointer;
 }

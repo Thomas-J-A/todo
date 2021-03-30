@@ -1,35 +1,11 @@
-let projects = {
-    programming: [
-        { 
-            title: 'Learn React',
-            description: 'Begin Youtube tutorials',
-            dueDate: '2021-04-2',
-            priority: 'medium',
-            isComplete: false
-        },
-        {
-            title: 'Todo app',
-            description: 'Finish styles and storage functionality',
-            dueDate: '2021-03-31',
-            priority: 'high',
-            isComplete: false
-        }
-    ],
-    housework: [
-        {
-            title: 'Wash dishes',
-            description: 'Wash all dishes in kitchen sink',
-            dueDate: '2021-03-30',
-            priority: 'high',
-            isComplete: false
-        }
-    ]
-}
+let projects = ['default', 'programming'];
 
+let tasks = [];
 
-function Task(title, description, dueDate, priority, isComplete) {
+function Task(title, project, description, dueDate, priority, isComplete) {
     return {
         title,
+        project,
         description,
         dueDate,
         priority,
@@ -89,16 +65,14 @@ const DOMEvents = (() => {
     }        
 
     function renderProjectList() {
-        // cache project names
-        const projectsArr = Object.keys(projects); 
-
-        for (let i = 0; i < projectsArr.length; i++) {
+        for (let i = 0; i < projects.length; i++) {
             const li = document.createElement('li');
             const projectName = document.createElement('span');
             const removeBtn = document.createElement('i');
 
-            projectName.classList.add('sidebar_project-list-name');
-            projectName.textContent = projectsArr[i];
+            li.setAttribute('data-index', i);
+
+            projectName.textContent = projects[i];
             projectName.addEventListener('click', updateMain);
 
             removeBtn.classList.add('fas')
@@ -122,16 +96,10 @@ const DOMEvents = (() => {
     }
 
     function removeProject(e) {
-        // remove project from projects object
-        const projectName = e.target.previousSibling.textContent;
-        delete projects[projectName];
-
-        // re-render projectList
+        // also remove related tasks
+        projects.splice(e.target.parentNode.dataset.index, 1);
         DOMController.clearElement(DOMElements.projectList);
         renderProjectList();
-
-        // since all related tasks are deleted too, set main
-        // display to default 'ALL' tab
     }
 
     function displayModal(e) {
@@ -147,8 +115,8 @@ const DOMEvents = (() => {
     function updateProjectList(e) {
         e.preventDefault();
 
-        const projectName = e.target.elements[0].value;
-        projects[projectName] = [];
+        const newProject = e.target.elements[0].value;
+        projects.push(newProject);
 
         if (DOMElements.sidebarChevron.classList.contains('open')) {
             DOMController.clearElement(DOMElements.projectList);
@@ -161,82 +129,81 @@ const DOMEvents = (() => {
     function updateTaskList(e) {
         e.preventDefault();
 
-        // cache currently displayed project's name
-        const currentProject = DOMElements.mainTitle.textContent;
-
         const title = e.target.elements[0].value;
+        const project = DOMElements.mainTitle.textContent;
         const description = e.target.elements[1].value;
         const dueDate = e.target.elements[2].value;
         const priority = e.target.elements[3].value;
         const isComplete = false;
         
-        projects[currentProject].push(Task(title, description, dueDate, priority, isComplete));
+        tasks.push(Task(title, project, description, dueDate, priority, isComplete));
 
         DOMController.clearElement(DOMElements.taskList);
 
         renderTaskList();
 
         DOMElements.modalAddTask.classList.remove('show');
+
+        //tasks.forEach((task) => {console.log(task)});
     }
 
     function renderTaskList() {
-        // cache list of tasks for currently displayed project
-        const currentProject = DOMElements.mainTitle.textContent;
-        const tasks = projects[currentProject];
+        // cache currently displayed project name
+        const title = DOMElements.mainTitle.textContent;
 
-        // render each task
         for (let i = 0; i < tasks.length; i++) {
 
-            const taskItem = document.createElement('li');
-            const wrapper = document.createElement('div');
-            const checkBtn = document.createElement('div');
-            const title = document.createElement('span');
-            const dueDate = document.createElement('span');
-            const removeBtn = document.createElement('i');
-            const expandBtn = document.createElement('i');
-            const description = document.createElement('p');
+            // render tasks for currently displayed project
+            if (tasks[i].project === title) {   
+                const taskItem = document.createElement('li');
+                const wrapper = document.createElement('div');
+                const checkBtn = document.createElement('div');
+                const title = document.createElement('span');
+                const dueDate = document.createElement('span');
+                const removeBtn = document.createElement('i');
+                const expandBtn = document.createElement('i');
+                const description = document.createElement('p');
 
-            taskItem.setAttribute('data-index', i);
+                if (tasks[i].priority === 'low') {
+                    wrapper.classList.add('priority-low');
+                } else if (tasks[i].priority === 'medium') {
+                    wrapper.classList.add('priority-medium');
+                } else {
+                    wrapper.classList.add('priority-high');
+                }
 
-            if (tasks[i].priority === 'low') {
-                wrapper.classList.add('priority-low');
-            } else if (tasks[i].priority === 'medium') {
-                wrapper.classList.add('priority-medium');
-            } else {
-                wrapper.classList.add('priority-high');
-            }
+                if (tasks[i].isComplete) {
+                    checkBtn.classList.add('checked');
+                } else {
+                    checkBtn.classList.add('unchecked');
+                }
 
-            if (tasks[i].isComplete) {
-                checkBtn.classList.add('checked');
-            } else {
-                checkBtn.classList.add('unchecked');
-            }
+                title.textContent = tasks[i].title;
 
-            title.textContent = tasks[i].title;
+                dueDate.textContent = tasks[i].dueDate;
 
-            dueDate.textContent = tasks[i].dueDate;
+                removeBtn.classList.add('fas');
+                removeBtn.classList.add('fa-trash-alt');
+                removeBtn.addEventListener('click', removeTask);
 
-            removeBtn.classList.add('fas');
-            removeBtn.classList.add('fa-trash-alt');
-            removeBtn.addEventListener('click', removeTask);
+                expandBtn.classList.add('fas');
+                expandBtn.classList.add('fa-chevron-down');
+                expandBtn.addEventListener('click', toggleDescription);
 
-            expandBtn.classList.add('fas');
-            expandBtn.classList.add('fa-chevron-down');
-            expandBtn.addEventListener('click', toggleDescription);
+                description.classList.add('description');
+                description.textContent = tasks[i].description;
+        
+                wrapper.appendChild(checkBtn);
+                wrapper.appendChild(title);
+                wrapper.appendChild(dueDate);
+                wrapper.appendChild(removeBtn);
+                wrapper.appendChild(expandBtn);
 
-            description.classList.add('description');
-            description.textContent = tasks[i].description;
-    
-            wrapper.appendChild(checkBtn);
-            wrapper.appendChild(title);
-            wrapper.appendChild(dueDate);
-            wrapper.appendChild(removeBtn);
-            wrapper.appendChild(expandBtn);
+                taskItem.appendChild(wrapper);
+                taskItem.appendChild(description);
 
-            taskItem.appendChild(wrapper);
-            taskItem.appendChild(description);
-
-            DOMElements.taskList.appendChild(taskItem);
+                DOMElements.taskList.appendChild(taskItem);
+            }      
         }    
     }
 
@@ -255,17 +222,22 @@ const DOMEvents = (() => {
     }
 
     function removeTask(e) {
-        // cache current project name and index of deleted task
-        const currentProject = DOMElements.mainTitle.textContent;
-        const index = e.target.parentNode.parentNode.dataset.index;
+        const element = e.target;
+        console.log(element);
 
-        // remove from associated project array
-        projects[currentProject].splice(index, 1);
-        
-        // re-render task list
-        DOMController.clearElement(DOMElements.taskList);
-        renderTaskList();
+        /*
+        for (let i = 0; i < tasks.length; i++) {
+            if (tasks[i].title === element.)
+        }*/
     }
+
+    /*
+    function removeProject(e) {
+        // also remove related tasks
+        projects.splice(e.target.parentNode.dataset.index, 1);
+        DOMController.clearElement(DOMElements.projectList);
+        renderProjectList();
+    }*/
 
     function closeModal(e) {
         // reset input fields before closing modal box
