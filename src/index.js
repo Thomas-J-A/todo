@@ -5,14 +5,16 @@ let projects = {
             description: 'Begin Youtube tutorials',
             dueDate: '2021-04-2',
             priority: 'medium',
-            isComplete: false
+            isComplete: false,
+            showDescription: true
         },
         {
             title: 'Todo app',
             description: 'Finish styles and storage functionality',
             dueDate: '2021-03-31',
             priority: 'high',
-            isComplete: false
+            isComplete: false,
+            showDescription: false
         }
     ],
     housework: [
@@ -21,19 +23,21 @@ let projects = {
             description: 'Wash all dishes in kitchen sink',
             dueDate: '2021-03-30',
             priority: 'high',
-            isComplete: false
+            isComplete: false,
+            showDescription: false
         }
     ]
 }
 
 
-function Task(title, description, dueDate, priority, isComplete) {
+function Task(title, description, dueDate, priority, isComplete, showDescription) {
     return {
         title,
         description,
         dueDate,
         priority,
-        isComplete
+        isComplete,
+        showDescription
     }
 }
 
@@ -88,29 +92,41 @@ const DOMEvents = (() => {
         }
     }        
 
+
     function renderProjectList() {
         // cache project names
         const projectsArr = Object.keys(projects); 
 
-        for (let i = 0; i < projectsArr.length; i++) {
-            const li = document.createElement('li');
-            const projectName = document.createElement('span');
-            const removeBtn = document.createElement('i');
+        // check if any projects exist
+        if (projectsArr.length > 0) {
 
-            projectName.classList.add('sidebar_project-list-name');
-            projectName.textContent = projectsArr[i];
-            projectName.addEventListener('click', updateMain);
-
-            removeBtn.classList.add('fas')
-            removeBtn.classList.add('fa-times');
-            removeBtn.addEventListener('click', removeProject);
-
-            li.appendChild(projectName);
-            li.appendChild(removeBtn);
-
-            DOMElements.projectList.appendChild(li);
-        }
+            // render each project
+            for (let i = 0; i < projectsArr.length; i++) {
+                const li = document.createElement('li');
+                const projectName = document.createElement('span');
+                const removeBtn = document.createElement('i');
+    
+                projectName.classList.add('sidebar_project-list-name');
+                projectName.textContent = projectsArr[i];
+                projectName.addEventListener('click', updateMain);
+    
+                removeBtn.classList.add('fas')
+                removeBtn.classList.add('fa-times');
+                removeBtn.addEventListener('click', removeProject);
+    
+                li.appendChild(projectName);
+                li.appendChild(removeBtn);
+    
+                DOMElements.projectList.appendChild(li);
+            }
+        } else {
+            // display 'no projects' message
+            const noProjectsMsg = document.createElement('li');
+            noProjectsMsg.textContent = 'No Projects To Display';
+            DOMElements.projectList.appendChild(noProjectsMsg);
+        }       
     }
+
     
     function updateMain(e) {
         // change main title
@@ -120,6 +136,7 @@ const DOMEvents = (() => {
         DOMController.clearElement(DOMElements.taskList);
         renderTaskList();
     }
+
 
     function removeProject(e) {
         // remove project from projects object
@@ -134,6 +151,7 @@ const DOMEvents = (() => {
         // display to default 'ALL' tab
     }
 
+
     function displayModal(e) {
         if (e.currentTarget.id === 'sidebar_add-project') {
             // open add project modal
@@ -143,6 +161,7 @@ const DOMEvents = (() => {
             DOMElements.modalAddTask.classList.add('show');
         }
     }
+
     
     function updateProjectList(e) {
         e.preventDefault();
@@ -158,6 +177,7 @@ const DOMEvents = (() => {
         DOMElements.modalAddProject.classList.remove('show');            
     }
 
+
     function updateTaskList(e) {
         e.preventDefault();
 
@@ -169,8 +189,9 @@ const DOMEvents = (() => {
         const dueDate = e.target.elements[2].value;
         const priority = e.target.elements[3].value;
         const isComplete = false;
+        const showDescription = false;
         
-        projects[currentProject].push(Task(title, description, dueDate, priority, isComplete));
+        projects[currentProject].push(Task(title, description, dueDate, priority, isComplete, showDescription));
 
         DOMController.clearElement(DOMElements.taskList);
 
@@ -179,80 +200,102 @@ const DOMEvents = (() => {
         DOMElements.modalAddTask.classList.remove('show');
     }
 
+
     function renderTaskList() {
         // cache list of tasks for currently displayed project
         const currentProject = DOMElements.mainTitle.textContent;
         const tasks = projects[currentProject];
 
-        // render each task
-        for (let i = 0; i < tasks.length; i++) {
+        // check if tasks exist for currently displayed project
+        if (tasks.length > 0) {
 
-            const taskItem = document.createElement('li');
-            const wrapper = document.createElement('div');
-            const checkBtn = document.createElement('div');
-            const title = document.createElement('span');
-            const dueDate = document.createElement('span');
-            const removeBtn = document.createElement('i');
-            const expandBtn = document.createElement('i');
-            const description = document.createElement('p');
+            // render each task
+            for (let i = 0; i < tasks.length; i++) {
 
-            taskItem.setAttribute('data-index', i);
+                const taskItem = document.createElement('li');
+                const wrapper = document.createElement('div');
+                const checkBtn = document.createElement('div');
+                const title = document.createElement('span');
+                const dueDate = document.createElement('span');
+                const removeBtn = document.createElement('i');
+                const expandBtn = document.createElement('i');
+                const description = document.createElement('p');
 
-            if (tasks[i].priority === 'low') {
-                wrapper.classList.add('priority-low');
-            } else if (tasks[i].priority === 'medium') {
-                wrapper.classList.add('priority-medium');
-            } else {
-                wrapper.classList.add('priority-high');
-            }
+                taskItem.setAttribute('data-index', i);
 
-            if (tasks[i].isComplete) {
-                checkBtn.classList.add('checked');
-            } else {
-                checkBtn.classList.add('unchecked');
-            }
+                if (tasks[i].priority === 'low') {
+                    wrapper.classList.add('priority-low');
+                } else if (tasks[i].priority === 'medium') {
+                    wrapper.classList.add('priority-medium');
+                } else {
+                    wrapper.classList.add('priority-high');
+                }
 
-            title.textContent = tasks[i].title;
+                if (tasks[i].isComplete) {
+                    checkBtn.classList.add('checked');
+                } else {
+                    checkBtn.classList.add('unchecked');
+                }
 
-            dueDate.textContent = tasks[i].dueDate;
+                title.textContent = tasks[i].title;
 
-            removeBtn.classList.add('fas');
-            removeBtn.classList.add('fa-trash-alt');
-            removeBtn.addEventListener('click', removeTask);
+                dueDate.textContent = tasks[i].dueDate;
 
-            expandBtn.classList.add('fas');
-            expandBtn.classList.add('fa-chevron-down');
-            expandBtn.addEventListener('click', toggleDescription);
+                removeBtn.classList.add('fas');
+                removeBtn.classList.add('fa-trash-alt');
+                removeBtn.addEventListener('click', removeTask);
 
-            description.classList.add('description');
-            description.textContent = tasks[i].description;
-    
-            wrapper.appendChild(checkBtn);
-            wrapper.appendChild(title);
-            wrapper.appendChild(dueDate);
-            wrapper.appendChild(removeBtn);
-            wrapper.appendChild(expandBtn);
+                if (tasks[i].showDescription === true) {
+                    expandBtn.classList.add('open');
+                }
+                expandBtn.classList.add('fas');
+                expandBtn.classList.add('fa-chevron-down');
+                expandBtn.addEventListener('click', toggleDescription);
 
-            taskItem.appendChild(wrapper);
-            taskItem.appendChild(description);
+                if (tasks[i].showDescription === true) {
+                    description.classList.add('show');
+                }
+                description.classList.add('description');
+                description.textContent = tasks[i].description;
+        
+                wrapper.appendChild(checkBtn);
+                wrapper.appendChild(title);
+                wrapper.appendChild(dueDate);
+                wrapper.appendChild(removeBtn);
+                wrapper.appendChild(expandBtn);
 
-            DOMElements.taskList.appendChild(taskItem);
-        }    
+                taskItem.appendChild(wrapper);
+                taskItem.appendChild(description);
+
+                DOMElements.taskList.appendChild(taskItem);
+            }    
+        } else {
+            // display 'no tasks' message
+            const noTasksMsg = document.createElement('li');
+            noTasksMsg.textContent = 'No Tasks To Display';
+            DOMElements.taskList.appendChild(noTasksMsg);
+        }      
     }
+
 
     function toggleDescription(e) {
-        const element = e.target;
+        // cache current project name and index of toggled task
+        const currentProject = DOMElements.mainTitle.textContent;
+        const index = e.target.parentNode.parentNode.dataset.index;
 
-        if (element.classList.contains('open')) {
+        if (e.target.classList.contains('open')) {
             // hide description
-            element.classList.remove('open');
-            element.parentNode.nextSibling.classList.remove('show');
+            e.target.classList.remove('open');
+            e.target.parentNode.nextSibling.classList.remove('show');
+            projects[currentProject][index].showDescription = false;
         } else {
             // show description
-            element.classList.add('open');
-            element.parentNode.nextSibling.classList.add('show');
+            e.target.classList.add('open');
+            e.target.parentNode.nextSibling.classList.add('show');
+            projects[currentProject][index].showDescription = true;
         }
     }
+
 
     function removeTask(e) {
         // cache current project name and index of deleted task
@@ -266,6 +309,7 @@ const DOMEvents = (() => {
         DOMController.clearElement(DOMElements.taskList);
         renderTaskList();
     }
+
 
     function closeModal(e) {
         // reset input fields before closing modal box
@@ -311,6 +355,7 @@ const DOMController = (() => {
     function clearElement(element) {
         element.textContent = '';
     }
+
 
     return {
         clearElement

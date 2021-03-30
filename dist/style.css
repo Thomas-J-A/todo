@@ -59,6 +59,8 @@ body {
     margin-top: auto;
 }
 
+#sidebar_home:hover,
+.sidebar_project-list-name:hover,
 #sidebar_add-project:hover {
     cursor: pointer;
 }
@@ -129,8 +131,7 @@ body {
 }
 
 .fa-times:hover,
-.fa-chevron-down,
-.fa-trash-alt,
-.sidebar_project-list-name {
+.fa-chevron-down:hover,
+.fa-trash-alt:hover {
     cursor: pointer;
 }
