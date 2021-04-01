@@ -1,28 +1,18 @@
 let projects = {
-    programming: [
-        { 
-            title: 'Learn React',
-            description: 'Begin Youtube tutorials',
-            dueDate: '2021-04-2',
-            priority: 'medium',
-            isComplete: false,
-            showDescription: true
-        },
+    default: [
         {
-            title: 'Todo app',
-            description: 'Finish styles and storage functionality',
-            dueDate: '2021-03-31',
+            title: 'Rubbish',
+            description: 'Empty bins',
+            dueDate: '2021-04-03',
             priority: 'high',
             isComplete: false,
             showDescription: false
-        }
-    ],
-    housework: [
-        {
-            title: 'Wash dishes',
-            description: 'Wash all dishes in kitchen sink',
-            dueDate: '2021-03-30',
-            priority: 'high',
+        },
+        { 
+            title: 'Jogging',
+            description: '3k run around the block',
+            dueDate: '2021-04-09',
+            priority: 'low',
             isComplete: false,
             showDescription: false
         }
@@ -214,6 +204,8 @@ const DOMEvents = (() => {
         // re-render projectList
         DOMController.clearElement(DOMElements.projectList);
         renderProjectList();
+
+        DOMController.updateLocalStorage();
     }
 
 
@@ -251,7 +243,10 @@ const DOMEvents = (() => {
             renderProjectList();
         }
 
-        DOMElements.modalAddProject.classList.remove('show');            
+        // hide modal
+        DOMElements.modalAddProject.classList.remove('show');
+        
+        DOMController.updateLocalStorage();
     }
 
 
@@ -288,8 +283,10 @@ const DOMEvents = (() => {
             renderTaskList();
         }
 
-        // close modal
+        // hide modal
         DOMElements.modalAddTask.classList.remove('show');
+
+        DOMController.updateLocalStorage();
     }
 
 
@@ -408,6 +405,8 @@ const DOMEvents = (() => {
         // re-render task list
         DOMController.removeElement(document.getElementById('main_task-list'));
         renderTaskList();
+
+        DOMController.updateLocalStorage();
     }
 
 
@@ -463,10 +462,29 @@ const DOMController = (() => {
     }
 
 
+    function updateLocalStorage() {
+        localStorage.setItem('projects', JSON.stringify(projects));
+    }
+
+
+    function init() {
+        // set projects object to localStorage object if it exists
+        const existing = localStorage.getItem('projects');
+
+        if (existing) {
+            projects = JSON.parse(existing);
+        }
+
+        DOMEvents.renderHome();
+    }
+
+
     return {
         clearElement,
-        removeElement
+        removeElement,
+        updateLocalStorage,
+        init
     }
 })();
 
-DOMEvents.renderHome();
+DOMController.init();
