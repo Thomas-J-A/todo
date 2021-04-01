@@ -45,30 +45,30 @@ function Task(title, description, dueDate, priority, isComplete, showDescription
 // caches DOM elements 
 const DOMElements = (() => {
 
-    const sidebarHome = document.getElementById('sidebar_home');
     const sidebarChevron = document.getElementById('sidebar_chevron');
     const projectList = document.getElementById('sidebar_project-list');
-    const mainDisplay = document.querySelector('.main');
+    const taskList = document.getElementById('main_task-list');
+    const mainTitle = document.getElementById('main_title');
     const addProjectBtn = document.getElementById('sidebar_add-project');
+    const addTaskBtn = document.getElementById('main_add-task');
     const modalAddProject = document.getElementById('modal_add-project');
     const modalAddTask = document.getElementById('modal_add-task');
     const modalAddProjectClose = document.getElementById('modal_add-project-close');
     const modalAddTaskClose = document.getElementById('modal_add-task-close');
-    const modalAddTaskProjectSelect = document.getElementById('modal_add-task-project-select');
     const projectForm = document.getElementById('form-project');
     const taskForm = document.getElementById('form-task');
 
     return {
-        sidebarHome,
         sidebarChevron,
         projectList,
-        mainDisplay,
+        taskList,
+        mainTitle,
         addProjectBtn,
+        addTaskBtn,
         modalAddProject,
         modalAddTask,
         modalAddProjectClose,
         modalAddTaskClose,
-        modalAddTaskProjectSelect,
         projectForm,
         taskForm
     };
@@ -77,23 +77,6 @@ const DOMElements = (() => {
 
 // stores listener functions
 const DOMEvents = (() => {
-
-    function renderHome() {
-        DOMController.clearElement(DOMElements.mainDisplay);
-
-        const hero = document.createElement('div');
-        const title = document.createElement('h1');
-        const about = document.createElement('p');
-
-        title.textContent = 'TODO';
-        about.textContent = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum placerat lacus et ex ornare sodales. Quisque non eros quis purus malesuada ornare. Donec lobortis rutrum dignissim. Morbi placerat sollicitudin mauris a posuere. Nullam placerat fringilla justo, vel consequat nisi scelerisque ac. Maecenas et cursus nisl.';
-
-        hero.appendChild(title);
-        hero.appendChild(about);
-
-        DOMElements.mainDisplay.appendChild(hero);
-    }
-
 
     function toggleProjectList() {
         const classList = DOMElements.sidebarChevron.classList;
@@ -146,74 +129,26 @@ const DOMEvents = (() => {
 
     
     function updateMain(e) {
-        // clear main display
-        DOMController.clearElement(DOMElements.mainDisplay);
+        // change main title
+        DOMElements.mainTitle.textContent = e.target.textContent;
 
-        // render title bar and add task button
-        const mainTitleWrapper = document.createElement('div');
-        const mainTitle = document.createElement('span');
-        const mainAddTask = document.createElement('div');
-        const plusIcon = document.createElement('i');
-        const addTaskText = document.createElement('span');
-
-        mainTitleWrapper.setAttribute('id', 'main_title-wrapper');
-        mainTitle.setAttribute('id', 'main_title');
-        mainTitle.textContent = e.target.textContent;
-        mainAddTask.setAttribute('id', 'main_add-task');
-        mainAddTask.addEventListener('click', DOMEvents.displayModal);
-        plusIcon.classList.add('fas');
-        plusIcon.classList.add('fa-plus');
-        addTaskText.textContent = 'Add Task';
-
-        mainAddTask.appendChild(plusIcon);
-        mainAddTask.appendChild(addTaskText);
-
-        mainTitleWrapper.appendChild(mainTitle);
-        mainTitleWrapper.appendChild(mainAddTask);
-
-        DOMElements.mainDisplay.appendChild(mainTitleWrapper);
-
-        // render task list
+        // re-render display
+        DOMController.clearElement(DOMElements.taskList);
         renderTaskList();
     }
 
 
     function removeProject(e) {
-        const projectToRemove = e.target.previousSibling.textContent;
-        const mainTitle = document.getElementById('main_title');
-        const taskList = document.getElementById('main_task-list');
-
-        // if removing a project while on home tab, skip to end
-        if (mainTitle !== null) 
-
-            if (projectToRemove === mainTitle.textContent) {  
-                // remove task list or 'no tasks' message
-                if (taskList) DOMController.removeElement(taskList);
-                else DOMController.removeElement(document.getElementById('msg-no-tasks'));
-
-                // render another project/home
-                if (e.target.parentNode.nextSibling) {
-                    // render tasks for next project
-                    mainTitle.textContent = e.target.parentNode.nextSibling.textContent;
-                    renderTaskList();
-
-                } else if (e.target.parentNode.previousSibling) {
-                    // render tasks for previous project
-                    mainTitle.textContent = e.target.parentNode.previousSibling.textContent;
-                    renderTaskList();
-
-                } else {
-                    // no more projects - render home
-                    renderHome();
-                }
-            }
-
         // remove project from projects object
-        delete projects[projectToRemove];
+        const projectName = e.target.previousSibling.textContent;
+        delete projects[projectName];
 
         // re-render projectList
         DOMController.clearElement(DOMElements.projectList);
         renderProjectList();
+
+        // since all related tasks are deleted too, set main
+        // display to default 'ALL' tab
     }
 
 
@@ -222,19 +157,7 @@ const DOMEvents = (() => {
             // open add project modal
             DOMElements.modalAddProject.classList.add('show');
         } else {
-            // dynamically add project options and open task modal
-            const selectMenu = DOMElements.modalAddTaskProjectSelect;
-            const projectsArr = Object.keys(projects);
-
-            DOMController.clearElement(selectMenu);  
-            
-            for (let i = 0; i < projectsArr.length; i++) {
-                const option = document.createElement('option');
-                option.value = projectsArr[i];
-                option.textContent = projectsArr[i];
-                selectMenu.appendChild(option);
-            }
-
+            // open add task modal
             DOMElements.modalAddTask.classList.add('show');
         }
     }
@@ -258,54 +181,35 @@ const DOMEvents = (() => {
     function updateTaskList(e) {
         e.preventDefault();
 
-        // push new task to projects object
+        // cache currently displayed project's name
+        const currentProject = DOMElements.mainTitle.textContent;
+
         const title = e.target.elements[0].value;
         const description = e.target.elements[1].value;
         const dueDate = e.target.elements[2].value;
-        const priority = e.target.elements[4].value;
+        const priority = e.target.elements[3].value;
         const isComplete = false;
         const showDescription = false;
-
-        const project = e.target.elements[3].value;
         
-        projects[project].push(Task(title, description, dueDate, priority, isComplete, showDescription));
+        projects[currentProject].push(Task(title, description, dueDate, priority, isComplete, showDescription));
 
-        // re-render current task list if task is 
-        // added to currently displayed project
-        const currentProject = document.getElementById('main_title').textContent;
+        DOMController.clearElement(DOMElements.taskList);
 
-        if (project === currentProject) {
-            // remove current list/'no tasks' message
-            const taskList = document.getElementById('main_task-list');
+        renderTaskList();
 
-            if(taskList) {
-                DOMController.removeElement(taskList);
-            } else {
-                const msg = document.getElementById('msg-no-tasks');
-                DOMController.removeElement(msg);
-            }
-            
-            renderTaskList();
-        }
-
-        // close modal
         DOMElements.modalAddTask.classList.remove('show');
     }
 
 
     function renderTaskList() {
         // cache list of tasks for currently displayed project
-        const currentProject = document.getElementById('main_title').textContent;
+        const currentProject = DOMElements.mainTitle.textContent;
         const tasks = projects[currentProject];
 
         // check if tasks exist for currently displayed project
         if (tasks.length > 0) {
 
-            // create list element
-            const taskList = document.createElement('ul');
-            taskList.setAttribute('id', 'main_task-list');
-
-            // append each task to list
+            // render each task
             for (let i = 0; i < tasks.length; i++) {
 
                 const taskItem = document.createElement('li');
@@ -363,24 +267,20 @@ const DOMEvents = (() => {
                 taskItem.appendChild(wrapper);
                 taskItem.appendChild(description);
 
-                taskList.appendChild(taskItem);
+                DOMElements.taskList.appendChild(taskItem);
             }    
-
-            // append list to main display
-            DOMElements.mainDisplay.appendChild(taskList);
         } else {
             // display 'no tasks' message
-            const noTasksMsg = document.createElement('p');
-            noTasksMsg.setAttribute('id', 'msg-no-tasks');
+            const noTasksMsg = document.createElement('li');
             noTasksMsg.textContent = 'No Tasks To Display';
-            DOMElements.mainDisplay.appendChild(noTasksMsg);
+            DOMElements.taskList.appendChild(noTasksMsg);
         }      
     }
 
 
     function toggleDescription(e) {
         // cache current project name and index of toggled task
-        const currentProject = document.getElementById('main_title').textContent;
+        const currentProject = DOMElements.mainTitle.textContent;
         const index = e.target.parentNode.parentNode.dataset.index;
 
         if (e.target.classList.contains('open')) {
@@ -399,14 +299,14 @@ const DOMEvents = (() => {
 
     function removeTask(e) {
         // cache current project name and index of deleted task
-        const currentProject = document.getElementById('main_title').textContent;
+        const currentProject = DOMElements.mainTitle.textContent;
         const index = e.target.parentNode.parentNode.dataset.index;
 
         // remove from associated project array
         projects[currentProject].splice(index, 1);
         
         // re-render task list
-        DOMController.removeElement(document.getElementById('main_task-list'));
+        DOMController.clearElement(DOMElements.taskList);
         renderTaskList();
     }
 
@@ -426,7 +326,6 @@ const DOMEvents = (() => {
     }
     
     return {
-        renderHome,
         toggleProjectList,
         displayModal,
         updateProjectList,
@@ -439,9 +338,9 @@ const DOMEvents = (() => {
 // sets event listeners
 const DOMListeners = (() => {
 
-    DOMElements.sidebarHome.addEventListener('click', DOMEvents.renderHome);
     DOMElements.sidebarChevron.addEventListener('click', DOMEvents.toggleProjectList);
     DOMElements.addProjectBtn.addEventListener('click', DOMEvents.displayModal);
+    DOMElements.addTaskBtn.addEventListener('click', DOMEvents.displayModal);
     DOMElements.modalAddProjectClose.addEventListener('click', DOMEvents.closeModal);
     DOMElements.modalAddTaskClose.addEventListener('click', DOMEvents.closeModal);
     window.addEventListener('click', DOMEvents.closeModal);
@@ -457,16 +356,20 @@ const DOMController = (() => {
         element.textContent = '';
     }
 
-    
-    function removeElement(element) {
-        element.remove();
-    }
-
 
     return {
-        clearElement,
-        removeElement
+        clearElement
     }
 })();
 
-DOMEvents.renderHome();
+
+/*
+<div id="main_title-wrapper">
+    <span id="main_title"></span>
+    <div id="main_add-task">
+        <i class="fas fa-plus"></i>
+        <span>Add Task</span>
+    </div>
+</div>
+<ul id="main_task-list"></ul>
+*/
