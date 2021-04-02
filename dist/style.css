@@ -1,6 +1,13 @@
-/*:root {
-
-}*/
+:root {
+    --header-background: #ababb1;
+    --sidebar-background: #b1aeab;
+    --main-background: #abb1b1;
+    --section-border: 2px solid #999;
+    --priority-low: 5px solid #858585;
+    --priority-medium: 5px solid #555;
+    --priority-high: 5px solid #000;
+    --checkbox-border: 2px solid #000;
+}
 
 *,
 *:before,
@@ -10,12 +17,28 @@
     margin: 0;
 }
 
+html {
+    font-size: 25px;
+    font-family: 'Lexend', sans-serif
+}
+
 body {
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #ccc;
+}
+
+body::before {
+    content: '';
+    background-image: url('./images/wood_background.jpg');
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0.6;
 }
 
 .content {
@@ -24,6 +47,10 @@ body {
     grid-template-rows: 15%;
     height: 70vh;
     width: 60vw;
+    border-radius: 0.3rem;
+    box-shadow: 0 0 50px 5px #000;
+    z-index: 1;
+    overflow: hidden;
 }
 
 
@@ -35,9 +62,16 @@ body {
     align-items: center;
     grid-column: 1/3;
     grid-row: 1/2;
-    background-color: #f00;
+    background-color: var(--header-background);
+    border-bottom: var(--section-border);
+    padding: 0.5rem 0 0 0.8rem;
 }
 
+header h1 {
+    font-family: 'Indie Flower', cursive;
+    font-size: 2.5rem;
+    font-weight: 300;
+}
 
 /********** SIDEBAR **********/
 
@@ -47,11 +81,25 @@ body {
     flex-direction: column;
     grid-column: 1/2;
     grid-row: 2/3;
-    background-color: #0f0;
+    background-color: var(--sidebar-background);
+    border-right: var(--section-border);
+    padding: 0.5rem;
+}
+
+#sidebar_home,
+#sidebar_projects {
+    font-size: 1.3rem;
 }
 
 #sidebar_project-list {
     list-style-type: none;
+    margin-top: 0.5rem;
+}
+
+#sidebar_project-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 #sidebar_add-project {
@@ -70,29 +118,108 @@ body {
 
 
 .main {
+    position: relative;
     grid-column: 2/3;
     grid-row: 2/3;
-    background-color: #00f;
+    background-color: var(--main-background);
+    padding: 0.5rem;
+    overflow-y: auto;
 }
 
-#main_title-wrapper {
-    display: flex;
-    position: relative;
-    justify-content: flex-end;
+.hero {
+    text-align: center;
+}
+
+.hero h1 {
+    font-family: 'Indie Flower', cursive;
+    font-size: 4rem;
+}
+
+.hero-image {
+    height: 6rem;
+    width: auto;
+    margin-top: 2rem;
 }
 
 #main_title {
+    font-family: 'Indie Flower', cursive;
+    font-size: 2.5rem;
+    letter-spacing: 0.1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+#main_add-task {
     position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0);
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+#main_add-task i {
+    margin-right: 0.3rem;
 }
 
 #main_add-task:hover {
     cursor: pointer;
 }
 
+#main_task-list {
+    list-style-type: none;
+}
+
+#main_task-list li {
+    margin-bottom: .5rem;
+}
+
+#main_task-list > li > div {
+    display: flex;
+    align-items: center;
+}
+
+.task-checkbox {
+    height: 1rem;
+    width: 1rem;
+    margin-left: .5rem;
+    margin-right: .5rem;
+    border: var(--checkbox-border);
+}
+
+div.checked {
+    background-image: url('./images/tick.svg');
+    background-size: cover;
+}
+
+.task-title {
+    margin-right: auto;
+}
+
+.task-due-date {
+    margin-right: .5rem;
+}
+
+.task-remove {
+    margin-right: .5rem;
+}
+
+.priority-low {
+    border-left: var(--priority-low);
+}
+
+.priority-medium {
+    border-left: var(--priority-medium);
+}
+
+.priority-high {
+    border-left: var(--priority-high);
+}
+
 .description {
     display: none;
+    margin-left: 2.2rem;
+}
+
+#msg-no-tasks {
+    text-align: center;
 }
 
 
@@ -108,14 +235,66 @@ body {
     background-color: rgba(0, 0, 0, 0.4);
 }
 
-.modal_content {
+.modal_content-project,
+.modal_content-task {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    height: 40vh;
-    width: 20vw;
-    background-color: #fff;
+    background-color: #c2bfbc;
+    border-radius: 8px;
+    box-shadow: 0 0 1rem .2rem;
+    padding: .5rem;
+}
+
+.modal_title {
+    font-family: 'Indie Flower', cursive;
+    font-size: 2rem;
+    text-align: center;
+}
+
+#modal_add-project-close,
+#modal_add-task-close {
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input[type="text"],
+input[type="date"],
+select {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid #000;
+    width: 75%;
+    font-size: 1rem;
+}
+
+input[type="text"] {
+   outline: none;
+   height: 2rem;
+}
+
+input[type="date"] {
+    outline: none;
+    margin-top: .7rem;
+}
+
+select {
+    margin-top: .7rem;
+}
+
+input[type="image"] {
+    height: 1.5rem;
+    width: 1.5rem;
+    margin-top: .7rem;
+    opacity: 0.7;
 }
 
 

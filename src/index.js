@@ -74,12 +74,19 @@ const DOMEvents = (() => {
         const hero = document.createElement('div');
         const title = document.createElement('h1');
         const about = document.createElement('p');
+        const image = document.createElement('img');
+
+        hero.classList.add('hero');
 
         title.textContent = 'TODO';
         about.textContent = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum placerat lacus et ex ornare sodales. Quisque non eros quis purus malesuada ornare. Donec lobortis rutrum dignissim. Morbi placerat sollicitudin mauris a posuere. Nullam placerat fringilla justo, vel consequat nisi scelerisque ac. Maecenas et cursus nisl.';
 
+        image.classList.add('hero-image');
+        image.src = './images/hero-img.svg';
+
         hero.appendChild(title);
         hero.appendChild(about);
+        hero.appendChild(image);
 
         DOMElements.mainDisplay.appendChild(hero);
     }
@@ -140,13 +147,11 @@ const DOMEvents = (() => {
         DOMController.clearElement(DOMElements.mainDisplay);
 
         // render title bar and add task button
-        const mainTitleWrapper = document.createElement('div');
-        const mainTitle = document.createElement('span');
+        const mainTitle = document.createElement('h1');
         const mainAddTask = document.createElement('div');
         const plusIcon = document.createElement('i');
         const addTaskText = document.createElement('span');
 
-        mainTitleWrapper.setAttribute('id', 'main_title-wrapper');
         mainTitle.setAttribute('id', 'main_title');
         mainTitle.textContent = e.target.textContent;
         mainAddTask.setAttribute('id', 'main_add-task');
@@ -158,10 +163,8 @@ const DOMEvents = (() => {
         mainAddTask.appendChild(plusIcon);
         mainAddTask.appendChild(addTaskText);
 
-        mainTitleWrapper.appendChild(mainTitle);
-        mainTitleWrapper.appendChild(mainAddTask);
-
-        DOMElements.mainDisplay.appendChild(mainTitleWrapper);
+        DOMElements.mainDisplay.appendChild(mainTitle);
+        DOMElements.mainDisplay.appendChild(mainAddTask);
 
         // render task list
         renderTaskList();
@@ -243,7 +246,8 @@ const DOMEvents = (() => {
             renderProjectList();
         }
 
-        // hide modal
+        // reset form and hide modal
+        DOMController.resetForm(DOMElements.projectForm);
         DOMElements.modalAddProject.classList.remove('show');
         
         DOMController.updateLocalStorage();
@@ -283,7 +287,8 @@ const DOMEvents = (() => {
             renderTaskList();
         }
 
-        // hide modal
+        // reset form and hide modal
+        DOMController.resetForm(DOMElements.taskForm);
         DOMElements.modalAddTask.classList.remove('show');
 
         DOMController.updateLocalStorage();
@@ -324,16 +329,23 @@ const DOMEvents = (() => {
                     wrapper.classList.add('priority-high');
                 }
 
+                checkBtn.classList.add('task-checkbox');
+
                 if (tasks[i].isComplete) {
                     checkBtn.classList.add('checked');
                 } else {
                     checkBtn.classList.add('unchecked');
                 }
 
+                checkBtn.addEventListener('click', toggleCheckbox);
+
+                title.classList.add('task-title');
                 title.textContent = tasks[i].title;
 
+                dueDate.classList.add('task-due-date')
                 dueDate.textContent = tasks[i].dueDate;
 
+                removeBtn.classList.add('task-remove');
                 removeBtn.classList.add('fas');
                 removeBtn.classList.add('fa-trash-alt');
                 removeBtn.addEventListener('click', removeTask);
@@ -375,6 +387,31 @@ const DOMEvents = (() => {
     }
 
 
+    function toggleCheckbox(e) {
+        // cache current project name and index of checked/unchecked task
+        const currentProject = document.getElementById('main_title').textContent;
+        const index = e.target.parentNode.parentNode.dataset.index;
+
+        const checkbox = e.target;
+
+        if (checkbox.classList.contains('unchecked')) {
+            // check box and update projects object
+            checkbox.classList.remove('unchecked');
+            checkbox.classList.add('checked')
+
+            projects[currentProject][index].isComplete = true;
+        } else {
+            // uncheck box and update projects object
+            checkbox.classList.remove('checked');
+            checkbox.classList.add('unchecked');
+
+            projects[currentProject][index].isComplete = false;
+        }
+
+        DOMController.updateLocalStorage();
+    }
+
+
     function toggleDescription(e) {
         // cache current project name and index of toggled task
         const currentProject = document.getElementById('main_title').textContent;
@@ -391,6 +428,8 @@ const DOMEvents = (() => {
             e.target.parentNode.nextSibling.classList.add('show');
             projects[currentProject][index].showDescription = true;
         }
+
+        DOMController.updateLocalStorage();
     }
 
 
@@ -411,15 +450,23 @@ const DOMEvents = (() => {
 
 
     function closeModal(e) {
-        // reset input fields before closing modal box
         if (e.target.classList.contains('modal')) {
             // clicked outside modal box
+            if (e.target.id === 'modal_add-project') {
+                DOMController.resetForm(DOMElements.projectForm);
+            } else {
+                DOMController.resetForm(DOMElements.taskForm);
+            }
             e.target.classList.remove('show');
+
         } else if (e.target.id == 'modal_add-project-close') {
             // closed add project modal box
+            DOMController.resetForm(DOMElements.projectForm);
             DOMElements.modalAddProject.classList.remove('show');
+
         } else if (e.target.id == 'modal_add-task-close') {
             // closed add task modal box
+            DOMController.resetForm(DOMElements.taskForm);
             DOMElements.modalAddTask.classList.remove('show');
         }
     }
@@ -461,6 +508,10 @@ const DOMController = (() => {
         element.remove();
     }
 
+    function resetForm(element) {
+        element.reset();
+    }
+
 
     function updateLocalStorage() {
         localStorage.setItem('projects', JSON.stringify(projects));
@@ -482,6 +533,7 @@ const DOMController = (() => {
     return {
         clearElement,
         removeElement,
+        resetForm,
         updateLocalStorage,
         init
     }

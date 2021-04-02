@@ -7,40 +7,36 @@
         <title>To-Do App</title>
         <link rel="stylesheet" href="./style.css">
         <script src="https://kit.fontawesome.com/fee433bc58.js" crossorigin="anonymous"></script>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Lexend&display=swap" rel="stylesheet"> 
         <script src="main.js" defer></script>
     </head>
     <body>
         <div class="modal" id="modal_add-project">
-            <div class="modal_content">
-                <div class="modal_title">
-                    <i class="fas fa-list"></i>
-                    <span>Add Project</span>
-                </div>
+            <div class="modal_content-project">
+                <h2 class="modal_title">Add Project</h2>
                 <form id="form-project">
-                    <input type="text">
-                    <input type="submit">
+                    <input type="text" placeholder="Project Name">
+                    <input type="image" src="./images/plus.svg">
                 </form>
                 <i class="fas fa-times" id="modal_add-project-close"></i>
             </div>
         </div>
 
         <div class="modal" id="modal_add-task">
-            <div class="modal_content">
-                <div class="modal_title">
-                    <i class="fas fa-list"></i>
-                    <span>Add Task</span>
-                </div>
+            <div class="modal_content-task">
+                <h2 class="modal_title">Add Task</h2>
                 <form id="form-task">
-                    <input type="text">
-                    <input type="text">
+                    <input type="text" placeholder="Task">
+                    <input type="text" placeholder="Description">
                     <input type="date">
                     <select id="modal_add-task-project-select"></select>
                     <select>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
+                        <option value="low">Low Priority</option>
+                        <option value="medium">Medium Priority</option>
+                        <option value="high">High Priority</option>
                     </select>
-                    <input type="submit">
+                    <input type="image" src="./images/plus.svg">
                 </form>
                 <i class="fas fa-times" id="modal_add-task-close"></i>
             </div>
@@ -48,7 +44,7 @@
 
         <div class="content">
             <header class="header">
-                <i class="fas fa-list"></i>
+                <!-- <i class="fas fa-list" id="logo"></i> -->
                 <h1>TODO</h1>
             </header>
 
@@ -58,7 +54,7 @@
                     <span>Projects</span>
                     <i class="fas fa-chevron-down" id="sidebar_chevron"></i>
                 </div>
-                <ul id="sidebar_project-list"></ul>
+                <ul id="sidebar_project-list"></ul> 
                 <div id="sidebar_add-project">
                     <i class="fas fa-plus"></i>
                     <span>Add Project</span>
